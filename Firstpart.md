@@ -477,7 +477,7 @@ export default MyComponent;
 import React, { Component } from 'react';
 
 class Test extends Component {
-	//생성자 props or state를 사용하기 위해서는 꼭 선언해야합니다.
+	//생성자 props or state를 사용하기 위해서는 꼭 선언해야함
 	constructor(props) {
 		super(props);
 		this.state = {
