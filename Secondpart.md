@@ -405,4 +405,213 @@ class App extends Component{
 export default App;
 ```
 
+#### 결과화면
 <kbd><img src="https://user-images.githubusercontent.com/67777124/135083793-31e95afc-2806-4b26-b333-1a9eb7721a6a.png" height="200"/></kbd>
+
+---
+
+## 6장: 컴포넌트 반복
+
+### 6.1 자바스크립트 배열의 map() 함수
+
+`map()` 은 배열 내의 모든 요소 각각에 대하여 주어진 함수를 호출한 결과를 모아 새로운 배열을 반환
+
+```javascript
+const array = [1, 2, 3, 4];
+const map = array.map((x) => x * 2);
+
+console.log(map); //Array [2, 4, 6, 8]
+```
+
+[MDN](https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Array/map)
+
+### 6.2 데이터 배열을 컴포넌트 배열로 변환하기
+
+`map()` 을 리액트 컴포넌트 내에서 사용하면 아래와 같음
+
+```javascript
+import React from "react";
+
+const MapMethod = () => {
+  const names = ["눈사람", "얼음", "눈", "바람"];
+  const nameList = names.map((name) => <li>{name}</li>);
+  return <ul>{nameList}</ul>;
+};
+
+export default MapMethod;
+```
+
+#### 결과화면
+<img src="https://user-images.githubusercontent.com/89551626/135824637-ca0bb3e7-f6cf-4bb2-8a8e-c07800cab2ac.png">
+
+#### BUT 콘솔창을 켜보면 이런 경고메시지가 뜸
+<img src="https://user-images.githubusercontent.com/89551626/135824831-10161de4-ac28-4cc2-8b0a-025f3ddfdbc7.png">
+
+### 6.3 key
+
+리액트에서 `key` 는 컴포넌트 배열을 렌더링했을 때 어떤 원소에 변동이 있었는지 알아내려고 사용
+`key` 가 있음으로 인해 `Virtual DOM` 을 비교하는 과정에서 리스트를 순차적으로 비교하면서 변화를 더욱 빠르게 감지할 수 있음  
+`key` 값은 `props` 와 같이 설정하면 되며 항상 유일한 값이어야 함  
+위의 코드를 수정해보면
+
+```javascript
+import React from "react";
+
+const MapMethod = () => {
+  const names = ["눈사람", "얼음", "눈", "바람"];
+  const nameList = names.map((name, index) => <li key={index}>{name}</li>);
+  return <ul>{nameList}</ul>;
+};
+
+export default MapMethod;
+```
+
+이제 경고메시지가 사라졌음을 확인할 수 있음  
+하지만 `index` 값은 유동적인 배열일 때 유일한 값이 아니라 계속해서 변할 수 있기 때문에 효율적이지 못함
+
+### 6.4 응용
+
+위를 응용하여 동적인 배열을 효율적으로 렌더링하는 방법을 알아보겠음
+
+```javascript
+import React, { useState } from "react";
+
+const MapMethod = () => {
+  const [names, setNames] = useState([
+    { id: 1, text: "눈사람" },
+    { id: 2, text: "얼음" },
+    { id: 3, text: "눈" },
+    { id: 4, text: "바람" },
+  ]);
+  const [inputText, setInputText] = useState("");
+  const [nextId, setNextId] = useState(5); // 새로운 항목을 추가할 때 사용할 id
+
+  const nameList = names.map((name) => <li key={name.id}>{name.text}</li>);
+  return <ul>{nameList}</ul>;
+};
+
+export default MapMethod;
+```
+
+`key` 값을 `index` 대신 `name.id` 값으로 지정해주었음  
+이제 새로운 데이터를 추가할 수 있는 기능을 구현하면 아래와 같음
+
+**데이터 추가 기능**
+
+```javascript
+import React, { useState } from "react";
+
+const MapMethod = () => {
+  const [names, setNames] = useState([
+    { id: 1, text: "눈사람" },
+    { id: 2, text: "얼음" },
+    { id: 3, text: "눈" },
+    { id: 4, text: "바람" },
+  ]);
+  const [inputText, setInputText] = useState("");
+  const [nextId, setNextId] = useState(5); // 새로운 항목을 추가할 때 사용할 id
+
+  const onChange = (event) => setInputText(event.target.value);
+  const onClick = () => {
+    const nextNames = names.concat({
+      id: nextId,
+      text: inputText,
+    });
+    setNextId(nextId + 1);
+    setNames(nextNames);
+    setInputText("");
+  };
+
+  const nameList = names.map((name) => <li key={name.id}>{name.text}</li>);
+  return (
+    <>
+      <input value={inputText} onChange={onChange} />
+      <button onClick={onClick}>추가</button>
+      <ul>{nameList}</ul>
+    </>
+  );
+};
+
+export default MapMethod;
+```
+
+여기서 자바스크립트 메소드 `concat()` 이 사용
+`concat()` 은 인자로 주어진 배열이나 값들을 기존 배열에 합쳐서 새 배열을 반환
+
+```javascript
+const array1 = ["가", "나", "다"];
+const array2 = ["라", "마", "바"];
+const array3 = array1.concat(array2);
+
+console.log(array3); // Array ["가", "나", "다", "라", "마", "바"]
+```
+
+`push()` 를 사용하지 않는 이유는 `push()` 는 기존 배열 자체를 변경해주어 리액트의 불변성을 깨기 때문입니다. 하지만 `concat()` 은 새로운 배열을 만들어주기 때문에 추후 컴포넌트 성능 최적화가 가능
+
+이제 새로운 데이터를 삭제할 수 있는 기능을 구현 
+불변성을 유지하면서 배열의 특정 항목을 지울 때는 `filter()` 를 사용
+
+```javascript
+const numbers = [1, 2, 3, 4, 5, 6];
+const biggerThanThree = numbers.filter((number) => number > 3);
+const withoutThree = numbers.filter((number) => number !== 3);
+
+console.log(biggerThanThree); // Array [4, 5, 6]
+console.log(withoutThree); // Array [1, 2, 4, 5, 6]
+```
+
+이렇게 `filter()` 를 사용하면 배열에서 특정 조건을 만족하는 원소들만 쉽게 분류 
+
+**데이터 삭제 기능**
+
+```javascript
+import React, { useState } from "react";
+
+const MapMethod = () => {
+  const [names, setNames] = useState([
+    { id: 1, text: "눈사람" },
+    { id: 2, text: "얼음" },
+    { id: 3, text: "눈" },
+    { id: 4, text: "바람" },
+  ]);
+  const [inputText, setInputText] = useState("");
+  const [nextId, setNextId] = useState(5); // 새로운 항목을 추가할 때 사용할 id
+
+  const onChange = (event) => setInputText(event.target.value);
+  const onClick = () => {
+    const nextNames = names.concat({
+      id: nextId,
+      text: inputText,
+    });
+    setNextId(nextId + 1);
+    setNames(nextNames);
+    setInputText("");
+  };
+  const onRemove = (id) => {
+    const nextNames = names.filter((name) => name.id !== id);
+    setNames(nextNames);
+  };
+
+  const nameList = names.map((name) => (
+    <li key={name.id}>
+      {name.text}
+      <button onClick={() => onRemove(name.id)}>삭제</button>
+    </li>
+  ));
+  return (
+    <>
+      <input value={inputText} onChange={onChange} />
+      <button onClick={onClick}>추가</button>
+      <ul>{nameList}</ul>
+    </>
+  );
+};
+
+export default MapMethod;
+```
+
+### 6.5 정리
+
+- 컴포넌트 배열을 렌더링할 때에는 key 값 설정에 주의
+- key 값은 언제나 유일 (중복된다면 렌더링 과정에서 Error)
+- 상태 안에서 배열을 변형할 때에는 직접 접근해 수정하는 것이 아니라 concat, filter 등의 배열 내장 함수를 사용해 새로운 배열을 만든 후 새로운 상태로 설정
