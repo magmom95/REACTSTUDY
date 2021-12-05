@@ -7,3 +7,4 @@
 # 완성파트
 - [First](./Firstpart.md)
 - [Second](./Secondpart.md)
+- [Third](./Thirdpart.md)
