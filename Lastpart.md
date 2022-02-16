@@ -326,6 +326,108 @@ js에서 비동기작업을 가장 흔히 사용하는 방법 => 콜백함수
 
 파라미터 값이 주어지면 1초 뒤에 10을 더해서 반환하는 함수
 
+```javascript
+function increase(number, callback) {
+  setTimeout(()=>{
+    const result = number + 10;
+  if (callback){
+    callback(result);
+  }
+  }, 1000)
+}
+
+increase(0, result =>{
+  console.log(result);
+});
+```
+
+1초에 걸쳐서 10,20,30,40과 같은 형태로 여러번 순차적으로 처리하고 싶다면?
+아래와 같이 콜백함수 여러번 중첩하여 구현
+
+```javascript
+function increase(number, callback) {
+  setTimeout(()=>{
+    const result = number + 10;
+  if (callback){
+    callback(result);
+  }
+  }, 1000)
+}
+console.log("작업 시작");
+increase(0, result =>{
+  console.log(result);
+  increase(0, result =>{
+    console.log(result);
+    increase(0, result =>{
+      console.log(result);
+      increase(0, result =>{
+        console.log(result);
+        increase(0, result =>{
+          console.log(result);
+        });
+      });
+    });
+  });
+});
+```
+
+콜백 안에 또 콜백을 넣어서 구현 하는데, 코드가 복잡해짐
+=> 콜백 지옥 발생
+
+**Promise**
+
+Promise는 콜백 지옥 같은 코드가 형성되지 않게 하는 방안
+
+```javascript
+function increase(number){
+  const promise = new Promise((resolve, reject)=>{
+    setTimeout(()=>{
+      const result = number + 10;
+      if(result>50){
+        const e = new Error('NumberTooBig');
+        return reject(e);
+      }
+      resolve(result);
+    },1000);
+  });
+  return promise;
+}
+increase(0)
+  .then(number=>{
+    console.log(number);
+    return increase(number);
+  })
+  .then(number=>{
+    console.log(number);
+    return increase(number);
+  })
+  .then(number=>{
+    console.log(number);
+    return increase(number);
+  })
+  .then(number=>{
+    console.log(number);
+    return increase(number);
+  })
+  .then(number=>{
+    console.log(number);
+    return increase(number);
+  })
+  .then(number=>{
+    console.log(number);
+    return increase(number);
+  })
+  .catch(e=>{
+    console.log(e);
+  })
+```
+작업을 연달아 처리한다고 해서 함수를 여러번 감싸는 것이 아닌, .then을 사용하여 그다음 작업을 설정
+=> 콜백지옥 형성x
+
+**async / await**
+
+Promise를 더욱 쉽게 사용할 수 있도록 해주는 ES8 문법 함수 앞부분에 async 키워드 추가하고, 해당 함수 내부에서 Promise의 앞부분에 await키워드를 사용 Promise가 끝날 때까지 기다리고, 결과 값은 특정 변수에 담을 수 있음
+
 ---
 
 ## 15장
