@@ -428,6 +428,38 @@ increase(0)
 
 Promise를 더욱 쉽게 사용할 수 있도록 해주는 ES8 문법 함수 앞부분에 async 키워드 추가하고, 해당 함수 내부에서 Promise의 앞부분에 await키워드를 사용 Promise가 끝날 때까지 기다리고, 결과 값은 특정 변수에 담을 수 있음
 
+### 14.2 axios로 API 호출해서 데이터 받아 오기
+
+axios는 현재 가장 많이 사용되고 있는 자바스크립트 HTTP 클라이언트
+HTTP 요청을 Promise 기반으로 처리한다는 점이 특징
+```javascript
+import React, { useState } from 'react';
+import axios from 'axios';
+
+const App = () => {
+    const [data, setData] = useState(null);
+    const onClick = async () => {
+        try {
+            const response = await axios.get(
+                'https://jsonplaceholder.typicode.com/todos/1',
+            );
+            setData(response.data);
+        } catch (e) {
+            console.log(e);
+        }
+    };
+    return (
+        <div>
+            <div>
+                <button onClick={onClick}>불러오기</button>
+            </div>
+            {data && <textarea rows={7} value={JSON.stringify(data, null, 2)} readOnly={true} />}
+        </div>
+    )
+}
+export default App;
+```
+
 ---
 
 ## 15장
