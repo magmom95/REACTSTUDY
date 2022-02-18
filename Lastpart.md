@@ -134,7 +134,7 @@
                  yarn add qs
                  ```
 
-                 1. import  및 사용
+                 2. import  및 사용
 
                  ```jsx
                  import qs from 'qs';
