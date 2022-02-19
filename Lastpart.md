@@ -460,6 +460,136 @@ const App = () => {
 export default App;
 ```
 
+
+### 14.3 newsapi API 키 발급받기
+
+<a>https://newsapi.org/s/south-korea-news-api</a> 에 들어가서 회원가입하여 자신의 api키를 받고, `axios.get` 형태로 한국 뉴스 api를 가져온다
+
+```javascript
+import React, { useState } from 'react';
+import axios from 'axios';
+
+const App = () => {
+  const [data, setData] = useState(null);
+  const onClick = async ()=>{
+    try{
+      const response = await axios.get(
+        'https://newsapi.org/v2/top-headlines?counrty=kr&apikey=myapikey',
+      );
+      setData(response.data);
+    } catch(e) {
+      consoloe.log(e);
+    }
+  };
+  return (
+    <div>
+      <div>
+        <button onClick={onClick}>불러오기</button>
+      </div>
+    </div>
+  );
+};
+export defualt App;
+```
+
+### 14.4 뉴스 뷰어 UI 만들기
+
+**styled-components**를 이용할 것이므로 `yarn add styled-components`를 이용하여 설치 NewsItem은 뉴스정보를 보여주는 컴포넌트,
+```javascript
+import React from 'react';
+import styled from 'styled-components';
+
+const NewsItemBlock = styled.div`
+  display:flex;
+  .thumbnail{
+    margin-right:1rem;
+    img{
+      display:block;
+      width:160px;
+      height:100px;
+      object-fit:cover;
+    }
+  }
+  .contents{
+    h2{
+      margin:0;
+      a{
+        color:black;
+      }
+    }
+    p{
+      margin:0;
+      line-height:1.5;
+      margin-top:0.5rem;
+      white-space:normal;
+    }
+  }
+  &+&{
+    margin-top:3rem;
+  }
+  `;
+
+  const NewsItem = ({article})=>{
+    const {title, description, url, urlToImage} = article;
+    return(
+      <NewsItemBlock>
+        {urlToImage && (
+          <div className="thumbnail">
+            <a href={url} target="_blank" rel="noopener noreferrer">
+              <img src={urlToImage} alt="thumbnail"/>
+            </a>
+          </div>
+        )}
+        <div className="contents">
+          <h2>
+            <a href={url} target="_blank" rel="noopener noreferrer">
+              {title}
+            </a>
+          </h2>
+          <p>{description}</p>
+        </div>
+      </NewsItemBlock>
+    )
+  }
+  export default NewsItem;
+```
+NewsList는 Api를 요청하고 뉴스 데이터가 들어 있는 배열을 컴포넌트 배열로 변환하여 렌더링해 주는 컴포넌트
+
+```javascript
+import React from 'react';
+import styled from 'styled-components';
+import NewsItem from './Newsitem';
+import axios from 'axios';
+import usePromise from '../lib/usePromise';
+
+const NewsListBlock = styled.div`
+  box-sizing: border-box;
+  padding-bottom: 3rem;
+  width: 768px;
+  margin: 0 auto;
+  margin-top: 2rem;
+  @media screen and(max-width: 768px) {
+    width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+`;
+const NewsList = () => {
+  return (
+    <NewsListBlock>
+        <NewsItem article={sampleArticle}/>
+        <NewsItem article={sampleArticle}/>
+        <NewsItem article={sampleArticle}/>
+        <NewsItem article={sampleArticle}/>
+        <NewsItem article={sampleArticle}/>
+        <NewsItem article={sampleArticle}/>
+    </NewsListBlock>
+  );
+};
+
+export default NewsList;
+```
+
 ---
 
 ## 15장
