@@ -657,6 +657,332 @@ export default NewsList;
 map함수를 사용하기 전에 꼭 **!articles**를 조회하여 해당 값이 현재 null인지 아닌지 검사할 것
 이 작업을 하지 않는다면? 아직 데이터가 없을 때 null에는 map함수가 없어 렌더링과정에서 오류 발생!
 
+
+## 14.6 카테고리 기능 구현하기
+
+components/Categories.js
+
+```Javascript
+import React from 'react';
+import styled from 'styled-components';
+import { NavLink } from 'react-router-dom';
+
+const categories = [
+  {
+    name: 'all',
+    text: '전체보기',
+  },
+  {
+    name: 'business',
+    text: '비즈니스',
+  },
+  {
+    name: 'entertainment',
+    text: '엔터테인먼트',
+  },
+  {
+    name: 'health',
+    text: '건강',
+  },
+  {
+    name: 'science',
+    text: '과학',
+  },
+  {
+    name: 'sports',
+    text: '스포츠',
+  },
+  {
+    name: 'technology',
+    text: '기술',
+  },
+];
+const CategoriesBlock = styled.div`
+  display: flex;
+  padding: 1rem;
+  width: 768px;
+  margin: 0 auto;
+  @media screen and (max-width: 768px) {
+    width: 100%;
+    overflow-x: auto;
+  }
+`;
+
+const Category = styled(NavLink)`
+  font-size: 1.125rem;
+  cursor: pointer;
+  white-space: pre;
+  text-decoration: none;
+  color: inherit;
+  padding-bottom: 0.25rem;
+
+  &:hover {
+    color: $495057;
+  }
+  &.active{
+      font-weight: 600;
+      border-bottom: 2px solid #22b8cf;
+      color: #22b8cf;
+      &:hover {
+        color: #3bc9db;
+      }
+    }
+  &+& {
+    margin-left: 1rem;
+  }
+`;
+const Categories = () => {
+  return (
+    <CategoriesBlock>
+      {categories.map((c) => (
+        <Category key={c.name}>
+          {c.text}
+        </Category>
+      ))}
+    </CategoriesBlock>
+  );
+};
+export default Categories;
+```
+
+App.js에 <Categories/>를 호출하여주면, 상단에 카테고리가 나온것을 확인 할 수 있음
+
+## 14.7 리액트 라우터 적용하기
+
+`yarn add react-router-dom`을 이용하여 리액트 라우터를 설치 후,
+index.js에 아래 코드를 추가
+
+```Javascript
+import {BrowserRouter} from 'react-router-dom';
+
+ReactDom.render()
+  <BrowserRouter>
+   <App/>
+  </BrowserRouter>,
+  document.getElementById('root')
+);
+```
+
+**NewsPage 생성**
+```Javascript
+import React from "react";
+import Categories from "../components/Categories";
+import NewsList from "../components/NewsList";
+
+const NewsPage=({match}) =>{
+  const category=match.params.category || 'all';
+
+  return(
+    <>
+    <Categories/>
+    <NewsList category={category}/>
+    </>
+  )
+}
+export default NewsPage;
+```
+
+App.js
+```Javascript
+import {Route} from 'react-router-dom';
+import NewsPage from './pages/NewsPage';
+
+const App = ()=>{
+  return <Route Path="/:category?" component={NewsPage}/>;
+}
+export default App;
+```
+**Categories에서 NavLink 사용하기**
+Categories에서 기존의 onSelect함수를 호출하여 카테고리를 선택하고,
+선택한 카테고리에 다른 스타일을 주는 기능을 NavLink로 대체
+
+```Javascript
+import React from 'react';
+import styled from 'styled-components';
+import { NavLink } from 'react-router-dom';
+
+const categories = [
+  {
+    name: 'all',
+    text: '전체보기',
+  },
+  {
+    name: 'business',
+    text: '비즈니스',
+  },
+  {
+    name: 'entertainment',
+    text: '엔터테인먼트',
+  },
+  {
+    name: 'health',
+    text: '건강',
+  },
+  {
+    name: 'science',
+    text: '과학',
+  },
+  {
+    name: 'sports',
+    text: '스포츠',
+  },
+  {
+    name: 'technology',
+    text: '기술',
+  },
+];
+const CategoriesBlock = styled.div`
+  display: flex;
+  padding: 1rem;
+  width: 768px;
+  margin: 0 auto;
+  @media screen and (max-width: 768px) {
+    width: 100%;
+    overflow-x: auto;
+  }
+`;
+
+const Category = styled(NavLink)`
+  font-size: 1.125rem;
+  cursor: pointer;
+  white-space: pre;
+  text-decoration: none;
+  color: inherit;
+  padding-bottom: 0.25rem;
+
+  &:hover {
+    color: $495057;
+  }
+  &.active{
+      font-weight: 600;
+      border-bottom: 2px solid #22b8cf;
+      color: #22b8cf;
+      &:hover {
+        color: #3bc9db;
+      }
+    }
+  &+& {
+    margin-left: 1rem;
+  }
+`;
+const Categories = () => {
+  return (
+    <CategoriesBlock>
+      {categories.map((c) => (
+        <Category
+          key={c.name}
+          activeClassName="active"
+          exact={c.name==='all'}
+          to={c.name==='all'?'/':`/${c.name}`}
+        >
+          {c.text}
+        </Category>
+      ))}
+    </CategoriesBlock>
+  );
+};
+export default Categories;
+
+```
+
+## 14.8 usePromise 커스텀 Hook만들기
+
+API호출처럼 Promise를 사용해야 하는 경우 더욱 간결하게 코드를 작성하도록
+커스텀 Hook을 만듦
+
+lib/usePromise.js
+```Javascript
+import {useState, useEffect} from 'react';
+
+export default function usePromise(promiseCreator, deps){
+  const [loading, setLoading] = useState(false);
+  const [resolved, setResolved] = useState(null);
+  const [error, setError] = useState(null);
+
+  useEffect(() =>{
+    const process = async()=>{
+      setLoading(true);
+      try{
+        const resolved = await promiseCreator();
+        setResolved(resolved);
+      }
+      catch(e){
+        setError(e);
+      }
+      setLoading(false);
+    };
+    process();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },deps);
+
+  return [loading,resolved, error]
+}
+```
+usePromise Hook은 Promise의 완료 결과, 실패 결과에 대한 상태를 관리하며,
+usePromise의 의존 배열 deps를 파라미터로 받아 
+
+components/NewsList.js
+```Javascript
+import React from 'react';
+import styled from 'styled-components';
+import NewsItem from './Newsitem';
+import axios from 'axios';
+import usePromise from '../lib/usePromise';
+
+const NewsListBlock = styled.div`
+  box-sizing: border-box;
+  padding-bottom: 3rem;
+  width: 768px;
+  margin: 0 auto;
+  margin-top: 2rem;
+  @media screen and(max-width: 768px) {
+    width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+`;
+const NewsList = ({ category }) => {
+  const [loading, response, error] = usePromise(() => {
+    const query = category === 'all' ? '' : `&category=${category}`;
+    return axios.get(
+      `https://newsapi.org/v2/top-headlines?country=kr${query}&apiKey=774f80ed743a469ab6ed074f5c05d334`,
+    );
+  }, [category]);
+
+  if (loading) {
+    return <NewsListBlock>대기 중 ...</NewsListBlock>;
+  }
+  if (!response) {
+    return null;
+  }
+  if (error) {
+    return <NewsListBlock>에러발생!</NewsListBlock>;
+  }
+  const { articles } = response.data;
+  return (
+    <NewsListBlock>
+      {articles.map((article) => (
+        <NewsItem key={article.url} article={article} />
+      ))}
+    </NewsListBlock>
+  );
+};
+
+export default NewsList;
+
+```
+usePromise를 사용하면 NewsList에서 대기 중 상태 관리와 useEffect설정을 직접 하지 않아도됨
+=> 코드가 간결해짐
+
+상황에 따라 커스텀 Hook을 만들어 적절히 사용할 것!
+
+## 14.9 정리
+useEffect에 등록하는 함수는 async로 작성하면 안 됨
+
+대신 함수 내부에 async 함수를 따로 만들어주어 사용 
+
+API의 종류가 많아지면 요청을 위한 상태 관리를 하는 것이 번거로워질 수 있음 => 리덕스 미들웨어
+
 ---
 
 ## 15장
