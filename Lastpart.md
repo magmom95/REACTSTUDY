@@ -590,6 +590,73 @@ const NewsList = () => {
 export default NewsList;
 ```
 
+## 14.5 데이터 연동하기
+- 컴포넌트가 화면에 보이는 시점에 API요청
+useEffect를 사용하여 컴포넌트가 처음 렌더링되는 시점에 API를 요청할 것
+useEffect에 등록하는 함수에 async를 붙여서는 안된다!
+
+components/NewsList.js
+```Javascript
+import React, {useState, useEffect} from 'react';
+import styled from 'styled-components';
+import NewsItem from './Newsitem';
+import axios from 'axios';
+
+const NewsListBlock = styled.div`
+  box-sizing: border-box;
+  padding-bottom: 3rem;
+  width: 768px;
+  margin: 0 auto;
+  margin-top: 2rem;
+  @media screen and(max-width: 768px) {
+    width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+`;
+const NewsList = () => {
+  const [conticle, setArticles] = useState(null);
+  const [loading, setLoading] = useState(null);
+  
+  useEffect(()=>{
+      const fetchData = async () =>{
+          setLoading(true);
+          try{
+              const response = await axios.get(
+                  '',
+              );
+              setArticles(response.data.articles);
+          } catch(e){
+              console.log(e);
+          }
+          setLoading(false);
+      };
+      fetchData();
+  },[]);
+
+  if (loading) {
+    return <NewsListBlock>대기 중 ...</NewsListBlock>;
+  }
+  if (!articles) {
+    return null;
+  }
+  if (error) {
+    return <NewsListBlock>에러발생!</NewsListBlock>;
+  }
+  return (
+    <NewsListBlock>
+      {articles.map((article) => (
+        <NewsItem key={article.url} article={article} />
+      ))}
+    </NewsListBlock>
+  );
+};
+
+export default NewsList;
+```
+map함수를 사용하기 전에 꼭 **!articles**를 조회하여 해당 값이 현재 null인지 아닌지 검사할 것
+이 작업을 하지 않는다면? 아직 데이터가 없을 때 null에는 map함수가 없어 렌더링과정에서 오류 발생!
+
 ---
 
 ## 15장
