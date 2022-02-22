@@ -341,7 +341,7 @@ increase(0, result =>{
 });
 ```
 
-1초에 걸쳐서 10,20,30,40과 같은 형태로 여러번 순차적으로 처리하고 싶다면?
+1초에 걸쳐서 10,20,30,40과 같은 형태로 여러번 순차적으로 처리하고 싶
 아래와 같이 콜백함수 여러번 중첩하여 구현
 
 ```javascript
@@ -463,7 +463,7 @@ export default App;
 
 ### 14.3 newsapi API 키 발급받기
 
-<a>https://newsapi.org/s/south-korea-news-api</a> 에 들어가서 회원가입하여 자신의 api키를 받고, `axios.get` 형태로 한국 뉴스 api를 가져온다
+<a>https://newsapi.org/s/south-korea-news-api</a> 에 들어가서 회원가입하여 자신의 api키를 받고, `axios.get` 형태로 한국 뉴스 api를 가져 옴
 
 ```javascript
 import React, { useState } from 'react';
@@ -593,7 +593,7 @@ export default NewsList;
 ## 14.5 데이터 연동하기
 - 컴포넌트가 화면에 보이는 시점에 API요청
 useEffect를 사용하여 컴포넌트가 처음 렌더링되는 시점에 API를 요청할 것
-useEffect에 등록하는 함수에 async를 붙여서는 안된다!
+useEffect에 등록하는 함수에 async를 붙여서는 안 됨
 
 components/NewsList.js
 ```Javascript
@@ -654,8 +654,8 @@ const NewsList = () => {
 
 export default NewsList;
 ```
-map함수를 사용하기 전에 꼭 **!articles**를 조회하여 해당 값이 현재 null인지 아닌지 검사할 것
-이 작업을 하지 않는다면? 아직 데이터가 없을 때 null에는 map함수가 없어 렌더링과정에서 오류 발생!
+map함수를 사용하기 전에 꼭 **!articles**를 조회하여 해당 값이 현재 null인지 아닌지 검사
+이 작업을 하지 않으려면 아직 데이터가 없을 때 null에는 map함수가 없어 렌더링과정에서 오류 발생
 
 
 ## 14.6 카테고리 기능 구현하기
@@ -919,7 +919,7 @@ export default function usePromise(promiseCreator, deps){
 }
 ```
 usePromise Hook은 Promise의 완료 결과, 실패 결과에 대한 상태를 관리하며,
-usePromise의 의존 배열 deps를 파라미터로 받아 
+usePromise의 의존 배열 deps를 파라미터로 받
 
 components/NewsList.js
 ```Javascript
@@ -971,10 +971,10 @@ const NewsList = ({ category }) => {
 export default NewsList;
 
 ```
-usePromise를 사용하면 NewsList에서 대기 중 상태 관리와 useEffect설정을 직접 하지 않아도됨
+usePromise를 사용하면 NewsList에서 대기 중 상태 관리와 useEffect설정을 직접 하지 않아도 됨
 => 코드가 간결해짐
 
-상황에 따라 커스텀 Hook을 만들어 적절히 사용할 것!
+상황에 따라 커스텀 Hook을 만들어 적절히 사용
 
 ## 14.9 정리
 useEffect에 등록하는 함수는 async로 작성하면 안 됨
