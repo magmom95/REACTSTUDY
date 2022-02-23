@@ -985,4 +985,12 @@ API의 종류가 많아지면 요청을 위한 상태 관리를 하는 것이 �
 
 ---
 
-## 15장
+## recoil
+
+✔ 개념
+- atoms에서 selectors(순수 함수)를 거쳐 React컴포넌트로 내려가는 data-flow graph를 만들 수 있음
+Atoms는 컴포넌트가 구독할 수 있는 상태의 단위
+Selectos는 atoms상태값을 동기 또는 비동기 방식을 통해 변환
+
+---
+
