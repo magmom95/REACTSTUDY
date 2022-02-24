@@ -992,5 +992,87 @@ API의 종류가 많아지면 요청을 위한 상태 관리를 하는 것이 �
 Atoms는 컴포넌트가 구독할 수 있는 상태의 단위
 Selectos는 atoms상태값을 동기 또는 비동기 방식을 통해 변환
 
----
+### 설치
 
+`npm install recoil` 혹은 `yarn add recoil`
+
+### Recoil 시작하기
+
+### RecoilRoot
+
+```jsx
+// App.js
+
+*import* React *from* 'react';
+*import* {
+  RecoilRoot,
+  atom,
+  selector,
+  useRecoilState,
+  useRecoilValue,
+} *from* 'recoil';
+
+*function* App() {
+  *return* (
+    <RecoilRoot>
+      <CharacterCounter />
+    </RecoilRoot>
+  );
+}
+```
+
+recoil 상태를 사용하는 컴포넌트는 부모 트리 어딘가에 나타나는 `RecoilRoot`가 필요 루트 컴포넌트가 `RecoilRoot`를 넣기에 가장 좋은 장소
+
+### Atom
+
+Atoms는 **상태(state)의 단위(일부)**이며, 업데이트와 구독이 가능하다. 컴포넌트가 구독할 수 있는 **React state**라고 생각하면 된다. atom이 업데이트되면 각각의 구독된 컴포넌트는 새로운 값을 반영하여 다시 렌더링
+
+**동일한 atom이 여러 컴포넌트에서 사용되는 경우 모든 컴포넌트는 상태를 공유**
+
+- Atom 생성
+
+Atoms는 `atom`함수를 사용해 생성
+
+```jsx
+*const* textState = atom({
+  key: 'textState',  *// unique ID (다른 atoms/selectors에 대한 고유 ID)*
+  *default*: '',  *// default value 기본값 (aka initial value 혹은 초기값)*
+});
+```
+
+- `CharacterCounter` 컴포넌트 생성
+
+```jsx
+function CharacterCounter() {
+  return (
+    <div>
+      <TextInput />
+      <CharacterCount />
+    </div>
+  );
+}
+```
+
+- `TextInput` 컴포넌트 생성
+
+```jsx
+function TextInput() {
+  const [text, setText] = useRecoilState(textState); // atom
+
+  const onChange = (event) => {
+    setText(event.target.value);
+  };
+
+  return (
+    <div>
+      <input type="text" value={text} onChange={onChange} />
+      <br />
+      Echo: {text}
+    </div>
+  );
+}
+```
+
+컴포넌트에서 atom을 **읽고 쓰려면** `useRecoilState`라는 훅을 사용한다. atom의 값을 구독하여 업데이트할 수 있는 hook이다. React의 `useState`와 비슷하지만 **상태가 컴포넌트 간에 공유될 수 있다**는 차이가 있음 (방식은 동일)
+
+---
