@@ -1075,4 +1075,248 @@ function TextInput() {
 
 컴포넌트에서 atom을 **읽고 쓰려면** `useRecoilState`라는 훅을 사용한다. atom의 값을 구독하여 업데이트할 수 있는 hook이다. React의 `useState`와 비슷하지만 **상태가 컴포넌트 간에 공유될 수 있다**는 차이가 있음 (방식은 동일)
 
+### Selector
+
+Selector는 atoms나 다른 selectors를 입력으로 받아들이는 **순수 함수(pure function)** 상위의 atoms 또는 selectors가 업데이트되면 하위의 selector 함수도 다시 실행 컴포넌트들은 selectors를 atoms처럼 구독할 수 있으며 selectors가 변경되면 컴포넌트들도 다시 렌더링 
+
+Selector는 **파생된 상태(derived state)**의 일부를 나타냄 atom이 상태의 단위이므로, 예를 들어 atom이 데이터 조각이라면 selector는 아톰에서 파생된 데이터 조각이라고 할 수 있음 파생된 상태는 (주어진 상태를 수정하는) 순수 함수에 전달된 상태의 결과물이라고 할 수 있음 파생된 상태는 다른 데이터에 의존하는 동적인 데이터를 만들 수 있음
+
+- Selector 정의
+
+Selectors는 `selector`함수를 사용해 정의
+
+```jsx
+const charCountState = selector({
+  key: "charCountState",
+  get: ({ get }) => {
+    const text = get(textState);
+    return text.length;
+  },
+});
+```
+
+`get`은 **계산될** 함수 전달되는 `get` 인자를 통해 atoms와 다른 selectors에 접근 가능
+
+✔ 즉, atom인 `textState`를 받아와 `text.length`로 반환하는 파생된 데이터를 만듬
+
+- `CharacterCount` 컴포넌트 생성
+
+```jsx
+function CharacterCount() {
+  const count = useRecoilValue(charCountState);
+  return <> Character Count : {count}</>;
+}
+```
+
+Selectors는 `useRecoilValue()`를 사용해 **읽을 수 있음**. `useRecoilValue()`는 하나의 atom이나 selector를 인자로 받아 대응하는 값을 반환 **즉, setter 함수 없이 atom의 값을 반환** `**get` 함수만 제공되면 selector는 읽기만 가능한 `RecoilValueReadOnly` 객체를 반환\*\* 따라서 `charCountState` selector는 writable하지 않기 때문에 `useRecoilState()`를 이용X
+
+### 전체 코드
+
+![image](https://user-images.githubusercontent.com/64140544/155710733-f89c1bb0-dc11-457f-855e-0cb0e30dcb63.png)
+
+```jsx
+import React from "react";
+import {
+  RecoilRoot,
+  atom,
+  selector,
+  useRecoilState,
+  useRecoilValue,
+} from "recoil";
+
+// RecoilRoot
+export default function App() {
+  return (
+    <RecoilRoot>
+      <CharacterCounter />
+    </RecoilRoot>
+  );
+}
+
+// Atom
+*const* textState = atom({
+  key: 'textState',
+**  *default*: '',
+**});
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+function CharacterCounter() {
+  return (
+    <div>
+      <TextInput />
+      <CharacterCount />
+    </div>
+  );
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+function TextInput() {
+  const [text, setText] = useRecoilState(textState);
+  const onChange = (event) => {
+    setText(event.target.value);
+  };
+  return (
+    <div>
+      <input type="text" value={text} onChange={onChange} />
+      <br />
+      Echo: {text}
+    </div>
+  );
+}
+
+// Selector
+const charCountState = selector({
+  key: "charCountState",
+  get: ({ get }) => {
+    const text = get(textState);
+    return text.length;
+  },
+});
+
+function CharacterCount() {
+  const count = useRecoilValue(charCountState);
+  return <> Character Count : {count}</>;
+}
+```
+
+### todo 리스트 애플리케이션
+
+### 도입부(RecoilRoot)
+
+```jsx
+import React, { useState } from "react";
+import {
+  RecoilRoot,
+  atom,
+  selector,
+  useRecoilState,
+  useRecoilValue,
+  useSetRecoilState,
+} from "recoil";
+
+export default function App() {
+  return (
+    <RecoilRoot>
+      <TodoList />
+    </RecoilRoot>
+  );
+}
+```
+
+- `TodoList`
+  - `TodoListStats`
+  - `TodoListFilters`
+  - `TodoItemCreator`
+  - `TodoItem`
+
+### Atoms
+
+- `TodoList`
+  ```jsx
+  const todoListState = atom({
+    key: "todoListState",
+    default: [],
+  });
+
+  function TodoList() {
+    const todoList = useRecoilValue(filteredTodoListState);
+
+    return (
+      <>
+        <TodoListStats />
+        <TodoListFilters />
+        <TodoItemCreator />
+        {todoList.map((todoItem) => (
+          <TodoItem key={todoItem.id} item={todoItem} />
+        ))}
+      </>
+    );
+  }
+  ```
+  - `TodoItemCreator`
+  ```jsx
+  function TodoItemCreator() {
+    const [inputValue, setInputValue] = useState("");
+    const setTodoList = useSetRecoilState(todoListState);
+
+    const addItem = () => {
+      setTodoList((oldTodoList) => [
+        ...oldTodoList,
+        {
+          id: getID(),
+          text: inputValue,
+          isComplete: false,
+        },
+      ]);
+      setInputValue("");
+    };
+
+    const onChange = ({ target: { value } }) => {
+      setInputValue(value);
+    };
+
+    return (
+      <div>
+        <input type="text" value={inputValue} onChange={onChange} />
+        <button onClick={addItem}>Add</button>
+      </div>
+    );
+  }
+
+  // 고유 ID
+  let id = 0;
+  function getID() {
+    return id++;
+  }
+  ```
+  - `TodoItem`
+  ```jsx
+  function TodoItem({ item }) {
+    const [todoList, setTodoList] = useRecoilState(todoListState);
+    const index = todoList.findIndex((listItem) => listItem === item);
+
+    const editItemIndex = ({ target: { value } }) => {
+      const newList = replaceItemAtIndex(todoList, index, {
+        ...item,
+        text: value,
+      });
+      setTodoList(newList);
+    };
+
+    const toggleItemCompletion = () => {
+      const newList = replaceItemAtIndex(todoList, index, {
+        ...item,
+        isComplete: !item.isComplete,
+      });
+      setTodoList(newList);
+    };
+
+    const deleteItem = () => {
+      const newList = removeItemAtIndex(todoList, index);
+      setTodoList(newList);
+    };
+
+    return (
+      <div>
+        <input type="text" value={item.text} onChange={editItemIndex} />
+        <input
+          type="checkbox"
+          checked={item.isComplete}
+          onChange={toggleItemCompletion}
+        />
+        <button onClick={deleteItem}>X</button>
+      </div>
+    );
+  }
+
+  function replaceItemAtIndex(arr, index, newValue) {
+    return [...arr.slice(0, index), newValue, ...arr.slice(index + 1)];
+  }
+
+  function removeItemAtIndex(arr, index) {
+    return [...arr.slice(0, index), ...arr.slice(index + 1)];
+  }
+  ```
 ---
