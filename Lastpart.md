@@ -26,6 +26,7 @@
 [ 라우팅 ]
 
 - 정의 : 다른 주소에 다른  화면을 보여주는 것
+
 - 리액트  라우팅 라이브러리 :
 
 1. 리액트 라우터  2. 리치 라우터   3. next.js
@@ -53,6 +54,7 @@
 
      - BrowserRouter 컴포넌트 기능
        - 페이지를 새로고침 하지않고 주소를 변경, 현재 주소에 관련된 정보를 props로 쉽게 조회하거나 사용할 수 있음
+       
        - 웹 애플리케이션에 HTML5의 History API를 사용하기 때문
 
   3. 페이지 생성 → 메인 페이지, 불러올 페이지(home.js, About.js)
@@ -143,7 +145,7 @@
                  	const query = qs.parse(location.search, {
                          ifnoreQueryPrefix: true //이 설정을 통해 문자열 맨 앞의 ?를 생략함
                      });
-                   const showDetail = query.detail === 'true'; //뭐리의 파싱 결과 값은 문자열입니다.
+                   const showDetail = query.detail === 'true'; //뭐리의 파싱 결과 값은 문자열
                  ...
                  ```
 
@@ -1025,7 +1027,7 @@ recoil 상태를 사용하는 컴포넌트는 부모 트리 어딘가에 나타�
 
 ### Atom
 
-Atoms는 **상태(state)의 단위(일부)**이며, 업데이트와 구독이 가능하다. 컴포넌트가 구독할 수 있는 **React state**라고 생각하면 된다. atom이 업데이트되면 각각의 구독된 컴포넌트는 새로운 값을 반영하여 다시 렌더링
+Atoms는 **상태(state)의 단위(일부)**이며, 업데이트와 구독이 가능 함 컴포넌트가 구독할 수 있는 **React state**라고 생각하면  atom이 업데이트되면 각각의 구독된 컴포넌트는 새로운 값을 반영하여 다시 렌더링
 
 **동일한 atom이 여러 컴포넌트에서 사용되는 경우 모든 컴포넌트는 상태를 공유**
 
@@ -1073,7 +1075,7 @@ function TextInput() {
 }
 ```
 
-컴포넌트에서 atom을 **읽고 쓰려면** `useRecoilState`라는 훅을 사용한다. atom의 값을 구독하여 업데이트할 수 있는 hook이다. React의 `useState`와 비슷하지만 **상태가 컴포넌트 간에 공유될 수 있다**는 차이가 있음 (방식은 동일)
+컴포넌트에서 atom을 **읽고 쓰려면** `useRecoilState`라는 훅을 사용 atom의 값을 구독하여 업데이트할 수 있는 hook! React의 `useState`와 비슷하지만 **상태가 컴포넌트 간에 공유될 수 있**는 차이가 있음 (방식은 동일)
 
 ### Selector
 
@@ -1182,6 +1184,14 @@ function CharacterCount() {
 ```
 
 ### todo 리스트 애플리케이션
+
+**필터링 된 todo리스트** : 전체 todo 리스트에서 일부 기준에 따라 특정 항목이 필터링 된 새 리스트(예: 이미 완료된 항목 필터링)를 생성되어 파생
+
+**Todo 리스트 통계** : 전체 todo 리스트에서 목록의 총 항목 수, 완료된 항목의 백분율 같은 리스트의 유용한 속성들을 계산하여 파생
+
+필터링 된 todo 리스트를 구현하기 위해서 우리는 atom에 저장될 수 있는 필터 기준을 선택해야함
+우리가 사용하게 될 필터 옵션
+"Show All", "Show Completed", "Show Uncompleted"이며, 기본 값은 "Show All"
 
 ### 도입부(RecoilRoot)
 
