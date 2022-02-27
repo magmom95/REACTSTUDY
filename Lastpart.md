@@ -1329,4 +1329,63 @@ export default function App() {
     return [...arr.slice(0, index), ...arr.slice(index + 1)];
   }
   ```
+  
+  ### 기본 자습서 - Selectors
+
+Selector를 통해 파생된 상태의 일부를 관리
+
+여기서는 필터링과 통계를 Selector를 통해 구현
+
+```javascript
+const todoListFilterState = atom({
+  key: 'todoListFilterState',
+  default: 'Show All', // 상태는 all, complete, uncomplete가 있음
+});
+```
+
+```javascript
+// 필터링을 통한 리스트를 얻기 위한 컴포넌트
+const filteredTodoListState = selector({
+  key: 'filteredTodoListState',
+  get: ({get}) => {
+    // 두개의 state를 의존성으로 가지고있음
+    // 따라서 이 두개가 변하게 된다면 이 컴포넌트도 리렌더링이 발생
+    const filter = get(todoListFilterState);
+    const list = get(todoListState);
+    
+
+    // filter 값에 따라 todo list 필터링
+    switch (filter) {
+      case 'Show Completed':
+        return list.filter((item) => item.isComplete); // list 중에서 끝난 것들을 필터링
+      case 'Show Uncompleted':
+        return list.filter((item) => !item.isComplete);
+      default:
+        return list;
+    }
+  },
+});
+```
+
+필터링된 결과의 통계 값을 얻기 위해 아래의 코드를 작성
+```javascript
+const todoListStatsState = selector({
+  key: 'todoListStatsState',
+  get: ({get}) => {
+    const todoList = get(todoListState);
+    const totalNum = todoList.length;
+    const totalCompletedNum = todoList.filter((item) => item.isComplete).length; // 완료된 수
+    const totalUncompletedNum = totalNum - totalCompletedNum; // 미완료 수
+    const percentCompleted = totalNum === 0 ? 0 : totalCompletedNum / totalNum; // 완료 작업 비율
+
+    return {
+      totalNum,
+      totalCompletedNum,
+      totalUncompletedNum,
+      percentCompleted,
+    };
+  },
+});
+```
+
 ---
