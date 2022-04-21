@@ -1368,6 +1368,7 @@ const filteredTodoListState = selector({
 ```
 
 필터링된 결과의 통계 값을 얻기 위해 아래의 코드를 작성
+
 ```javascript
 const todoListStatsState = selector({
   key: 'todoListStatsState',
