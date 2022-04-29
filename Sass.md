@@ -7,7 +7,7 @@ npm install node-sass
 yarn add node-sass
 ```
 
-- 둘중 하나 입력하면 다운 가능
+- 둘중 하나 입력  다운 가능
 
 - scss 문법 사용
 
